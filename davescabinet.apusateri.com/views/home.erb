@@ -1,0 +1,113 @@
+<div id="wall">
+
+</div>
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.ajax({
+			url: '/api/get_quotes/20',
+			dataType: 'json',
+			success: function(data) {
+				$.each(data, function(i, item) {
+					createLabel(item);
+				});
+				$('.desklabel').fadeIn();
+				positionLabels();
+			},
+			error: function(xhr, err) {
+				alert('Unable to load wall!');
+			}
+		});
+
+		$(window).resize(function() {
+			clearTimeout(positioning);
+   			positioning = setTimeout(positionLabels, 500);
+		});
+	});
+
+	var currentTop = 65;
+
+	function createLabel(text)
+	{
+		text = '<span>' + text.toString().replace(/\n/g, '</span><br /><span>') + '</span>';	
+		$('#wall').append('<div class="desklabel" style="top: ' + currentTop + 'px;">' + text + '</div>');
+		currentTop += 80;
+	}
+
+	var positioning;
+	var locs;
+	var trim_width = 100;
+	var trim_height = 300;
+	var max_nudge = 100;
+
+	function positionLabels() {
+		locs = [];
+		var w = $(window).width() - trim_width;
+		var h = $(window).height() - trim_height;
+
+		if (h < 0 || w < 0) {
+			return;
+		}
+
+		$('.desklabel').each(function(item) {
+			var nudge = 0;
+			do {
+				var l = Math.floor(Math.random() * w) + (trim_width / 2) - 100;
+				var t = Math.floor(Math.random() * h) + (trim_height / 2);
+				nudge += 1;
+			} while (!checkPosition(l, t) && nudge < max_nudge);
+
+			var r = Math.floor(Math.random() * 30);
+
+			var neg = Math.floor(Math.random() * 2);
+
+			locs.push([l, t]);
+
+			if (neg == 1) {
+				r = '-' + r;
+			}
+
+			$(this).animate({
+				'top': t, 
+				'left': l,
+			 }, 'fast').css('-webkit-transform', 'rotate(' + r + 'deg)');
+
+		});
+	}
+
+	function checkPosition(l, t) {
+		for (i = 0; i < locs.length; i++) {
+			if (
+				locs[i][0] + 40 > l && 
+				locs[i][0] - 40 < l && 
+				locs[i][1] + 240 > t && 
+				locs[i][1] - 240 < t) {
+				return false;
+			}
+		}
+		return true;
+	}
+</script>
+
+<style type="text/css">
+.desklabel {
+	display: none;
+	position: absolute;
+	left: 40px;
+	text-align: center;
+}
+.desklabel span {
+	background-color: white;
+	color: black;
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: 14px;
+	padding: 3px;
+	margin: 3px;
+	white-space: nowrap;
+	/*-moz-transform:rotate(-90deg);*/
+    /*-o-transform:rotate(-90deg);
+    -ms-transform:rotate(-90deg); */
+}
+</style>
