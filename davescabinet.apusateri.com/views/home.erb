@@ -5,7 +5,7 @@
 			<form class="navbar-form pull-left">
 				<select id="items">
 					<% [10, 20, 30, 40, 50, 60, 70].each do |i| %>
-					<option value='<%=i %>'><%= i %> labels</option>
+					<option value='<%=i %>'<% if i == 30 then %> selected <% end %>><%= i %> labels</option>
 					<% end %>
 				</select>
 				<select id="rotation">
