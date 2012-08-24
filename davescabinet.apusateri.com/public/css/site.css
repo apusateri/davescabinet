@@ -1,8 +1,10 @@
-html, body {
-	background-color: #222;
-	background-image: url('/img/brick_wall.jpeg');
+html {
+	background: url('/img/cabinet.jpg') no-repeat center center fixed;
 	color: white;
-	background-position: fixed;
+	-webkit-background-size: cover;
+	   -moz-background-size: cover;
+	   	 -o-background-size: cover;
+	   		background-size: cover;
 }
 body {
 	padding-top: 40px;

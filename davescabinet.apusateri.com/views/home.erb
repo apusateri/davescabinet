@@ -1,12 +1,52 @@
-<div id="wall">
-
+<div class="navbar navbar-fixed-top">
+	<div class="navbar-inner">
+		<a class="brand" href="<%= settings.root_url %>"><%= settings.base_title %></a>
+		<ul class="nav">
+			<form class="navbar-form pull-left">
+				<select id="items">
+					<% [10, 20, 30, 40, 50, 60, 70].each do |i| %>
+					<option value='<%=i %>'><%= i %> labels</option>
+					<% end %>
+				</select>
+				<select id="rotation">
+					<option value="on">Rotation On</option>
+					<option value="off">Rotation Off</option>
+				</select>
+			</form>
+		</ul>
+	</div>
+</div>
+<div class="container" id="main">
+	<div class="content">
+		<div id="wall"></div>
+	</div>
 </div>
 
 
 <script type="text/javascript">
 	$(document).ready(function() {
+		loadQuotes();
+
+		$(window).resize(function() {
+			clearTimeout(positioning);
+   			positioning = setTimeout(positionLabels, 500);
+		});
+
+		$('#items').change(function() {
+			loadQuotes();
+		});
+
+		$('#rotation').change(function() {
+			loadQuotes();
+		})
+	});
+
+	var currentTop = 65;
+
+	function loadQuotes() {
+		$('#wall').html('');
 		$.ajax({
-			url: '/api/get_quotes/20',
+			url: '/api/get_quotes/' + $('#items option:selected').val(),
 			dataType: 'json',
 			success: function(data) {
 				$.each(data, function(i, item) {
@@ -19,14 +59,7 @@
 				alert('Unable to load wall!');
 			}
 		});
-
-		$(window).resize(function() {
-			clearTimeout(positioning);
-   			positioning = setTimeout(positionLabels, 500);
-		});
-	});
-
-	var currentTop = 65;
+	}
 
 	function createLabel(text)
 	{
@@ -37,12 +70,14 @@
 
 	var positioning;
 	var locs;
-	var trim_width = 100;
-	var trim_height = 300;
+
+	var trim_width = 0;
+	var trim_height = 100;
 	var max_nudge = 100;
 
 	function positionLabels() {
-		locs = [];
+		locs = new Array();
+
 		var w = $(window).width() - trim_width;
 		var h = $(window).height() - trim_height;
 
@@ -53,39 +88,76 @@
 		$('.desklabel').each(function(item) {
 			var nudge = 0;
 			do {
-				var l = Math.floor(Math.random() * w) + (trim_width / 2) - 100;
-				var t = Math.floor(Math.random() * h) + (trim_height / 2);
-				nudge += 1;
-			} while (!checkPosition(l, t) && nudge < max_nudge);
 
-			var r = Math.floor(Math.random() * 30);
+				var onPage;
+				do
+				{
+					var x = Math.floor(Math.random() * w) + (trim_width / 2);
+					var y = Math.floor(Math.random() * h) + (trim_height / 2);
+					var x2 = x + $(this).width();
+					var y2 = y + $(this).height();
+
+					if (x2 > w || y2 > h) {
+						onPage = false;
+					} else {
+						onPage = true;
+					}
+				}
+				while (!onPage);
+
+				nudge += 1;
+
+			} while (!checkPosition(x, x2, y, y2) && nudge < max_nudge);
+
+			var r = Math.floor(Math.random() * 5);
 
 			var neg = Math.floor(Math.random() * 2);
-
-			locs.push([l, t]);
 
 			if (neg == 1) {
 				r = '-' + r;
 			}
 
-			$(this).animate({
-				'top': t, 
-				'left': l,
-			 }, 'fast').css('-webkit-transform', 'rotate(' + r + 'deg)');
-
+			if ($('#rotation option:selected').val() == "on") {
+				$(this).animate({
+					'top': y, 
+					'left': x,
+				 }, 'fast')
+				.css('-webkit-transform', 'rotate(' + r + 'deg)')
+				.css('-moz-transform', 'rotate(' + r + 'deg)')
+				.css('-o-transform', 'rotate(' + r + 'deg)')
+				.css('-ms-transform', 'rotate(' + r + 'deg)')
+				.css('transform', 'rotate(' + r + 'deg)');
+			} else {
+				$(this).animate({
+					'top': y, 
+					'left': x,
+				 }, 'fast');
+			}
 		});
 	}
 
-	function checkPosition(l, t) {
-		for (i = 0; i < locs.length; i++) {
-			if (
-				locs[i][0] + 40 > l && 
-				locs[i][0] - 40 < l && 
-				locs[i][1] + 240 > t && 
-				locs[i][1] - 240 < t) {
+	function checkPosition(x, x2, y, y2) {
+		var index = locs.length;
+
+	 	for (i = 0; i < index; i++) {
+	 		// collision detection
+
+	 		var tx = locs[i][0];
+	 		var tx2 = locs[i][1];
+	 		var ty = locs[i][2];
+	 		var ty2 = locs[i][3];
+
+			if (x2 >= tx && x <= tx2 && y2 >= ty && y <= ty2) {
 				return false;
 			}
-		}
+	 	}
+
+	 	locs[index] = new Array();
+	 	locs[index][0] = x;
+	 	locs[index][1] = x2;
+	 	locs[index][2] = y;
+	 	locs[index][3] = y2;
+
 		return true;
 	}
 </script>
@@ -106,8 +178,5 @@
 	padding: 3px;
 	margin: 3px;
 	white-space: nowrap;
-	/*-moz-transform:rotate(-90deg);*/
-    /*-o-transform:rotate(-90deg);
-    -ms-transform:rotate(-90deg); */
 }
 </style>
