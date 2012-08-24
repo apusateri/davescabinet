@@ -26,7 +26,7 @@ quotes = [
 	"Every time I think of you it brings a tear to my eye",
 	"Bird-tation",
 	"If someone owns a piece of land do they own it all the way to\nthe center of the earth?",
-	"I can''t walk away...\nSo I''m burnind down the house.\n - Anthony",
+	"I can''t walk away...\nSo I''m burning down the house.\n - Anthony",
 	"You can''t just walk around wielding doors and apologies",
 	"By the power of lies",
 	"Sigh",
@@ -63,6 +63,7 @@ quotes = [
 	"Beware of the gargantu-ass",
 	"Bori will live on in your heart\nWhat is a Bori? I don''t know that guy\nWhy teh h8?",
 	"In soviet Russia, milkshake drinks you!",
+	"GOOD JOB POSTINI.  ANOTHER GOLD STAR FOR YOUR HELMET, YOU SHORT BUS RETARD.",
 ]
 
 db = SQLite3::Database.new( 'db/davescabinet.db');
